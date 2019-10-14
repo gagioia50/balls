@@ -1,0 +1,14 @@
+/* this is comment */
+
+body {
+	margin: 0px;
+}
+
+#canvas {
+    border: 1px solid black;
+    background: #f1f1f1;
+}
+
+#inputTable {
+	padding: 20px;
+}

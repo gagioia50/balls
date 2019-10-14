@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <link rel="stylesheet" type="text/css" href="styleballs.css">
+    <title>Balls</title>
+    <script src="canvas.js"></script>
+  </head>
+  
+  <body>  
+    <table id="inputTable">
+      <tr>
+        <td>Number of particles</td>
+        <td><input type="text" id="numberP" value="10"></td> 
+      </tr>
+      <tr>
+        <td>Radius of particles</td>
+        <td><input type="text" id="radiusP" value="50"></td> 
+      </tr>
+      <tr>
+        <td>Max velocity of particles</td>
+        <td><input type="text" id="velocityP" value="4"></td> 
+      </tr>
+      <tr>
+        <td><button onclick="start(numberP.value, radiusP.value, velocityP.value)">Launch</button></td> 
+      </tr>
+    </table>
+
+    <script>
+      document.getElementById("numberP").value = localStorage.getItem("nPart") || 6;
+      document.getElementById("radiusP").value = localStorage.getItem("rPart") || 50;
+      document.getElementById("velocityP").value = localStorage.getItem("vPart") || 4;
+    </script>
+
+    <canvas id="canvas" width="200" height="5"></canvas>
+    
+    <script>
+      function start(n, r, v) {
+        var elem = document.getElementById('inputTable');
+        elem.parentNode.removeChild(elem);
+        startCanvas(n, r, v);
+      }
+    </script>
+
+  </body>
+</html>
