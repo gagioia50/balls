@@ -1,4 +1,4 @@
-function startCanvas(n, r, v) {
+function startCanvas(n, r, v, i, h) {
 
 		var numberParticles = parseInt(n);
 		localStorage.setItem("nPart", numberParticles);
@@ -6,6 +6,21 @@ function startCanvas(n, r, v) {
 		localStorage.setItem("rPart", radiusParticles);
 		var velocityParticles = parseInt(v);
 		localStorage.setItem("vPart", velocityParticles);
+		var iter_day = parseInt(i);
+		localStorage.setItem("iter_day", iter_day);
+		var heal_days = parseInt(h);
+		localStorage.setItem("heal_days", heal_days);
+
+		var iterations = 0;
+		var days = 0;
+		var infected = 0;
+		var recovered = 0;
+		var healthy = 0;
+		var x_days = [];
+		var y_infected = [];
+		var y_recovered = [];
+		var y_healthy = [];
+		var factor = 0;
 		
 		var canvas = document.querySelector('canvas');
 		var c = canvas.getContext("2d");
@@ -44,7 +59,7 @@ function startCanvas(n, r, v) {
 			return Math.floor(Math.random()*(max-min+1)+min);
 		}
 
-		function Particle(x, y, radius, color) {
+		function Particle(x, y, radius, color, days) {
 			this.x = x;
 			this.y = y;
 			
@@ -55,6 +70,7 @@ function startCanvas(n, r, v) {
 			
 			this.radius = radius;
 			this.color = color;
+			this.days = days;
 
 			this.update = function(particles) {
 				this.draw();
@@ -111,6 +127,14 @@ function startCanvas(n, r, v) {
 			}
 
 			this.collision = function(i) {
+				if (this.color == 'red' && particles[i].color == 'blue') {
+					particles[i].color = 'red';
+					particles[i].days = factor;
+				}
+				if (this.color == 'blue' && particles[i].color == 'red') {
+					this.color = 'red';
+					this.days = factor;
+				}
 				alpha = Math.atan((particles[i].y - this.y) / (particles[i].x - this.x));
 				var v1x = this.velocity.vx;  var v1y = this.velocity.vy;
 				var v2x = particles[i].velocity.vx; var v2y = particles[i].velocity.vy;
@@ -169,21 +193,107 @@ function startCanvas(n, r, v) {
 					color = 'red';
 				}
 
-				particles.push(new Particle(x, y, radius, color));
+				particles.push(new Particle(x, y, radius, color, 0));
 			}
+			
 			animate();
 		}
 
 		function animate() {
-			requestAnimationFrame(animate)
+			
 			c.clearRect(0, 0, innerWidth, innerHeight);
 			
 			for (var i = 0; i < particles.length; i++) {
 				particles[i].update(particles);
 			}
+
+			if (iterations == iter_day*factor) {
+					x_days.push(factor);
+					y_infected.push(infected);
+					y_recovered.push(recovered)
+					y_healthy.push(healthy)
+					factor += 1;
+					infected = 0;
+					recovered = 0;
+					healthy = 0;
+					for (var n=0; n<particles.length; n++) {
+						days = particles[n].days;
+						if (particles[n].color == 'green') {
+							recovered += 1;
+						}
+						if (particles[n].color == 'blue') {
+							healthy += 1;
+						}
+						if (particles[n].color == 'red') {
+							infected += 1;
+						}
+						if (particles[n].color == 'red' && (factor - days) > heal_days) {
+							particles[n].color = 'green'
+						}						
+					}
+			}
+
+			iterations += 1;
+
+			if (infected > 0) {
+				requestAnimationFrame(animate);
+			} else {
+				
+				var items_inf = [];
+				var items_rec = [];
+				var items_hea = [];
+
+				for (var i=0; i<x_days.length; i++) {
+					items_inf[i] = {x: x_days[i], y: y_infected[i]};
+					items_rec[i] = {x: x_days[i], y: y_recovered[i]};
+					items_hea[i] = {x: x_days[i], y: y_healthy[i]};
+				}
+				
+				graph(items_inf, items_rec, items_hea);
+			}
+			
+		}
+
+		function graph(items_inf, items_rec, items_hea) {
+			c.clearRect(0, 0, innerWidth, innerHeight);
+		    var scatterChart = new Chart(c, {
+		    type: 'scatter',
+		    data: {
+		        datasets: [{
+		            label: 'Infected',
+					data: items_inf,
+					fill: false,
+				    borderColor: 'red',
+				    backgroundColor: 'transparent'
+		        },
+		        {
+		            label: 'Recovered',
+					data: items_rec,
+					fill: false,
+				    borderColor: 'green',
+				    backgroundColor: 'transparent'
+		        },
+		        {
+		            label: 'Healthy',
+					data: items_hea,
+					fill: false,
+				    borderColor: 'blue',
+				    backgroundColor: 'transparent'
+		        }]
+		    },
+		    options: {
+		        scales: {
+		            xAxes: [{
+		                type: 'linear',
+		                position: 'bottom'
+		            }]
+		        }
+		    }
+		});
+		    return;
 		}
 
 		init();
-		animate();
+		
 
 }
