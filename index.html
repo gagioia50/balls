@@ -2,14 +2,26 @@
 <html>
   
   <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" 
+    integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="styleballs.css">
     <title>Balls</title>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" 
+    integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" 
+    integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
     <script src="canvas.js"></script>
   </head>
   
-  <body>  
-    <table id="inputTable">
+  <body>
+
+    <h1 id="title">Infection spraeding simulation</h1>
+    
+    <table id="inputTable" class="table table-bordered">
       <tr>
         <td>Number of particles</td>
         <td><input type="text" id="numberP" value="10"></td> 
@@ -31,10 +43,10 @@
         <td><input type="text" id="heal_days" value="20"></td> 
       </tr>
       <tr>
-        <td><button onclick="start(numberP.value, radiusP.value, velocityP.value, iter_day.value, heal_days.value)">Launch</button></td> 
+        <td><button class="btn btn-success" onclick="start(numberP.value, radiusP.value, velocityP.value, iter_day.value, heal_days.value)">Start Simulation</button></td> 
       </tr>
     </table>
-
+    
     <script>
       document.getElementById("numberP").value = localStorage.getItem("nPart") || 20;
       document.getElementById("radiusP").value = localStorage.getItem("rPart") || 30;
@@ -43,12 +55,15 @@
       document.getElementById("heal_days").value = localStorage.getItem("heal_days") || 20;
     </script>
 
-    <canvas id="canvas" width="200" height="5"></canvas>
+    <canvas id="canvas"></canvas>
     
     <script>
       function start(n, r, v, i, h) {
         var elem = document.getElementById('inputTable');
         elem.parentNode.removeChild(elem);
+        var elem2 = document.getElementById('title');
+        elem2.parentNode.removeChild(elem2);
+        
         startCanvas(n, r, v, i, h);
       }
     </script>

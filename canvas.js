@@ -12,7 +12,7 @@ function startCanvas(n, r, v, i, h) {
 		localStorage.setItem("heal_days", heal_days);
 
 		var iterations = 0;
-		var days = 0;
+		var day_start_inf = 0;
 		var infected = 0;
 		var recovered = 0;
 		var healthy = 0;
@@ -20,7 +20,7 @@ function startCanvas(n, r, v, i, h) {
 		var y_infected = [];
 		var y_recovered = [];
 		var y_healthy = [];
-		var factor = 0;
+		var current_day = 0;
 		
 		var canvas = document.querySelector('canvas');
 		var c = canvas.getContext("2d");
@@ -59,7 +59,7 @@ function startCanvas(n, r, v, i, h) {
 			return Math.floor(Math.random()*(max-min+1)+min);
 		}
 
-		function Particle(x, y, radius, color, days) {
+		function Particle(x, y, radius, color, day_start_inf) {
 			this.x = x;
 			this.y = y;
 			
@@ -70,7 +70,7 @@ function startCanvas(n, r, v, i, h) {
 			
 			this.radius = radius;
 			this.color = color;
-			this.days = days;
+			this.day_start_inf = day_start_inf;
 
 			this.update = function(particles) {
 				this.draw();
@@ -129,11 +129,11 @@ function startCanvas(n, r, v, i, h) {
 			this.collision = function(i) {
 				if (this.color == 'red' && particles[i].color == 'blue') {
 					particles[i].color = 'red';
-					particles[i].days = factor;
+					particles[i].day_start_inf = current_day;
 				}
 				if (this.color == 'blue' && particles[i].color == 'red') {
 					this.color = 'red';
-					this.days = factor;
+					this.day_start_inf = current_day;
 				}
 				alpha = Math.atan((particles[i].y - this.y) / (particles[i].x - this.x));
 				var v1x = this.velocity.vx;  var v1y = this.velocity.vy;
@@ -193,7 +193,7 @@ function startCanvas(n, r, v, i, h) {
 					color = 'red';
 				}
 
-				particles.push(new Particle(x, y, radius, color, 0));
+				particles.push(new Particle(x, y, radius, color, day_start_inf));
 			}
 			
 			animate();
@@ -207,17 +207,17 @@ function startCanvas(n, r, v, i, h) {
 				particles[i].update(particles);
 			}
 
-			if (iterations == iter_day*factor) {
-					x_days.push(factor);
+			if (iterations == iter_day*current_day) {
+					x_days.push(current_day);
 					y_infected.push(infected);
 					y_recovered.push(recovered)
 					y_healthy.push(healthy)
-					factor += 1;
+					current_day += 1;
 					infected = 0;
 					recovered = 0;
 					healthy = 0;
 					for (var n=0; n<particles.length; n++) {
-						days = particles[n].days;
+						day_start_inf = particles[n].day_start_inf;
 						if (particles[n].color == 'green') {
 							recovered += 1;
 						}
@@ -227,7 +227,7 @@ function startCanvas(n, r, v, i, h) {
 						if (particles[n].color == 'red') {
 							infected += 1;
 						}
-						if (particles[n].color == 'red' && (factor - days) > heal_days) {
+						if (particles[n].color == 'red' && (current_day - day_start_inf) > heal_days) {
 							particles[n].color = 'green'
 						}						
 					}
@@ -243,7 +243,7 @@ function startCanvas(n, r, v, i, h) {
 				var items_rec = [];
 				var items_hea = [];
 
-				for (var i=0; i<x_days.length; i++) {
+				for (var i=1; i<x_days.length; i++) {
 					items_inf[i] = {x: x_days[i], y: y_infected[i]};
 					items_rec[i] = {x: x_days[i], y: y_recovered[i]};
 					items_hea[i] = {x: x_days[i], y: y_healthy[i]};
