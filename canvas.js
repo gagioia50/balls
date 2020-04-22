@@ -1,25 +1,34 @@
-function startCanvas(n, r, v, i, h) {
+function startCanvas(number, radius, vel, iter_day, heal_days, fat_days, pct_fat) {
 
-		var numberParticles = parseInt(n);
+		var numberParticles = parseInt(number);
 		localStorage.setItem("nPart", numberParticles);
-		var radiusParticles = parseInt(r);
+		var radiusParticles = parseInt(radius);
 		localStorage.setItem("rPart", radiusParticles);
-		var velocityParticles = parseInt(v);
+		var velocityParticles = parseInt(vel);
 		localStorage.setItem("vPart", velocityParticles);
-		var iter_day = parseInt(i);
+		var iter_day = parseInt(iter_day);
 		localStorage.setItem("iter_day", iter_day);
-		var heal_days = parseInt(h);
+		var heal_days = parseInt(heal_days);
 		localStorage.setItem("heal_days", heal_days);
+		var fat_days = parseInt(fat_days);
+		localStorage.setItem("fat_days", fat_days);
+		var pct_fat = parseInt(pct_fat);
+		localStorage.setItem("pct_fat", pct_fat);
+
 
 		var iterations = 0;
-		var day_start_inf = 0;
+		var day_start_heal = 0;
+		var day_start_fat = 0;
 		var infected = 0;
+		var fatalities = 0;
 		var recovered = 0;
 		var healthy = 0;
+		var dead = 0;
 		var x_days = [];
 		var y_infected = [];
 		var y_recovered = [];
 		var y_healthy = [];
+		var y_dead = [];
 		var current_day = 0;
 		
 		var canvas = document.querySelector('canvas');
@@ -59,7 +68,7 @@ function startCanvas(n, r, v, i, h) {
 			return Math.floor(Math.random()*(max-min+1)+min);
 		}
 
-		function Particle(x, y, radius, color, day_start_inf) {
+		function Particle(x, y, radius, color, day_start_heal, day_start_fat) {
 			this.x = x;
 			this.y = y;
 			
@@ -70,46 +79,47 @@ function startCanvas(n, r, v, i, h) {
 			
 			this.radius = radius;
 			this.color = color;
-			this.day_start_inf = day_start_inf;
+			this.day_start_heal = day_start_heal;
+			this.day_start_fat = day_start_fat;
 
 			this.update = function(particles) {
 				this.draw();
 					
-					if (this.x - this.radius <= 0) {
+				if (this.x - this.radius <= 0) {
 
-						this.x = this.radius + 1;
+					this.x = this.radius + 1;
 
-						this.velocity.vx = -this.velocity.vx;
-						this.x += this.velocity.vx;
-						this.y += this.velocity.vy;
-					}
+					this.velocity.vx = -this.velocity.vx;
+					this.x += this.velocity.vx;
+					this.y += this.velocity.vy;
+				}
 
-					if (this.x + this.radius >= innerWidth) {
+				if (this.x + this.radius >= innerWidth) {
 
-						this.x = innerWidth - this.radius - 1;
+					this.x = innerWidth - this.radius - 1;
 
-						this.velocity.vx = -this.velocity.vx;
-						this.x += this.velocity.vx;
-						this.y += this.velocity.vy;
-					}
+					this.velocity.vx = -this.velocity.vx;
+					this.x += this.velocity.vx;
+					this.y += this.velocity.vy;
+				}
 
-					if (this.y - this.radius <= 0) {
+				if (this.y - this.radius <= 0) {
 
-						this.y = this.radius + 1;
+					this.y = this.radius + 1;
 
-						this.velocity.vy = -this.velocity.vy;
-						this.x += this.velocity.vx;
-						this.y += this.velocity.vy;
-					}
+					this.velocity.vy = -this.velocity.vy;
+					this.x += this.velocity.vx;
+					this.y += this.velocity.vy;
+				}
 
-					if (this.y + this.radius >= innerHeight) {
+				if (this.y + this.radius >= innerHeight) {
 
-						this.y = innerHeight - this.radius - 1;
+					this.y = innerHeight - this.radius - 1;
 
-						this.velocity.vy = -this.velocity.vy;
-						this.x += this.velocity.vx;
-						this.y += this.velocity.vy;
-					}
+					this.velocity.vy = -this.velocity.vy;
+					this.x += this.velocity.vx;
+					this.y += this.velocity.vy;
+				}
 
 
 				for (var i = 0; i < particles.length; i++) {
@@ -129,11 +139,11 @@ function startCanvas(n, r, v, i, h) {
 			this.collision = function(i) {
 				if (this.color == 'red' && particles[i].color == 'blue') {
 					particles[i].color = 'red';
-					particles[i].day_start_inf = current_day;
+					particles[i].day_start_heal = current_day;
 				}
 				if (this.color == 'blue' && particles[i].color == 'red') {
 					this.color = 'red';
-					this.day_start_inf = current_day;
+					this.day_start_heal = current_day;
 				}
 				alpha = Math.atan((particles[i].y - this.y) / (particles[i].x - this.x));
 				var v1x = this.velocity.vx;  var v1y = this.velocity.vy;
@@ -191,9 +201,10 @@ function startCanvas(n, r, v, i, h) {
 				
 				if (i == 0) {
 					color = 'red';
+					day_start_heal = 1;
 				}
 
-				particles.push(new Particle(x, y, radius, color, day_start_inf));
+				particles.push(new Particle(x, y, radius, color, day_start_heal, day_start_fat));
 			}
 			
 			animate();
@@ -210,27 +221,64 @@ function startCanvas(n, r, v, i, h) {
 			if (iterations == iter_day*current_day) {
 					x_days.push(current_day);
 					y_infected.push(infected);
-					y_recovered.push(recovered)
-					y_healthy.push(healthy)
+					y_recovered.push(recovered);
+					y_healthy.push(healthy);
+					y_dead.push(dead);
+					
+					var infectedArray = [];
 					current_day += 1;
 					infected = 0;
 					recovered = 0;
 					healthy = 0;
+					dead = 0;
+					
 					for (var n=0; n<particles.length; n++) {
-						day_start_inf = particles[n].day_start_inf;
+						day_start_heal = particles[n].day_start_heal;
+						day_start_fat = particles[n].day_start_fat;
+						
 						if (particles[n].color == 'green') {
 							recovered += 1;
 						}
 						if (particles[n].color == 'blue') {
 							healthy += 1;
 						}
+						if (particles[n].color == 'red' && (day_start_heal) > 0) {
+							if ((current_day - day_start_heal) > heal_days) {
+								particles[n].color = 'green'
+							}	
+						}
+						if (particles[n].color == 'red' && (day_start_fat) > 0) {
+							if ((current_day - day_start_fat) > fat_days) {
+								particles[n].color = 'black'
+							}	
+						}	
 						if (particles[n].color == 'red') {
 							infected += 1;
+							infectedArray.push(n);
 						}
-						if (particles[n].color == 'red' && (current_day - day_start_inf) > heal_days) {
-							particles[n].color = 'green'
-						}						
+						if (particles[n].color == 'black') {
+							dead += 1;
+						}				
 					}
+
+					fatalities = Math.round(infected * pct_fat/100);
+					if (fatalities > 0) {
+						var counter = 0;
+						var i = 0;
+						do  {
+							var n = infectedArray[i];
+							if (infectedArray[i].color == 'black') {
+								i += 1;
+								continue;
+							}
+							particles[n].day_start_heal = -1;
+							particles[n].day_start_fat = current_day;
+							counter += 1;
+							i += 1;
+
+						} while (counter <= fatalities)
+					}
+
 			}
 
 			iterations += 1;
@@ -242,19 +290,21 @@ function startCanvas(n, r, v, i, h) {
 				var items_inf = [];
 				var items_rec = [];
 				var items_hea = [];
+				var items_dea = [];
 
 				for (var i=1; i<x_days.length; i++) {
 					items_inf[i] = {x: x_days[i], y: y_infected[i]};
 					items_rec[i] = {x: x_days[i], y: y_recovered[i]};
 					items_hea[i] = {x: x_days[i], y: y_healthy[i]};
+					items_dea[i] = {x: x_days[i], y: y_dead[i]};
 				}
 				
-				graph(items_inf, items_rec, items_hea);
+				graph(items_inf, items_rec, items_hea, items_dea);
 			}
 			
 		}
 
-		function graph(items_inf, items_rec, items_hea) {
+		function graph(items_inf, items_rec, items_hea, items_dea) {
 			c.clearRect(0, 0, innerWidth, innerHeight);
 		    var scatterChart = new Chart(c, {
 		    type: 'scatter',
@@ -278,6 +328,13 @@ function startCanvas(n, r, v, i, h) {
 					data: items_hea,
 					fill: false,
 				    borderColor: 'blue',
+				    backgroundColor: 'transparent'
+		        },
+		        {
+		            label: 'Dead',
+					data: items_dea,
+					fill: false,
+				    borderColor: 'black',
 				    backgroundColor: 'transparent'
 		        }]
 		    },

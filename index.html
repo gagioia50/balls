@@ -24,47 +24,59 @@
     <table id="inputTable" class="table table-bordered">
       <tr>
         <td>Number of particles</td>
-        <td><input type="text" id="numberP" value="300"></td> 
+        <td class="input_tag"><input type="text" id="numberP" value="300"></td> 
       </tr>
       <tr>
         <td>Radius of particles</td>
-        <td><input type="text" id="radiusP" value="8"></td> 
+        <td class="input_tag"><input type="text" id="radiusP" value="8"></td> 
       </tr>
       <tr>
         <td>Max velocity of particles (px/iteration)</td>
-        <td><input type="text" id="velocityP" value="3"></td> 
+        <td class="input_tag"><input type="text" id="velocityP" value="3"></td> 
       </tr>
        <tr>
         <td>Iterations per day</td>
-        <td><input type="text" id="iter_day" value="25"></td> 
+        <td class="input_tag"><input type="text" id="iter_day" value="25"></td> 
       </tr>
       <tr>
         <td>Healing days</td>
-        <td><input type="text" id="heal_days" value="15"></td> 
+        <td class="input_tag"><input type="text" id="heal_days" value="15"></td> 
       </tr>
       <tr>
-        <td><button class="btn btn-success" onclick="start(numberP.value, radiusP.value, velocityP.value, iter_day.value, heal_days.value)">Start Simulation</button></td> 
+        <td>Fatality days</td>
+        <td class="input_tag"><input type="text" id="fat_days" value="15"></td> 
+      </tr>
+      <tr>
+        <td>Percent fatalities/infected</td>
+        <td class="input_tag"><input type="text" id="fat_pct" value="10"></td> 
+      </tr>
+      <tr>
+        <td><button class="btn btn-success" onclick="start(numberP.value, radiusP.value, velocityP.value,
+         iter_day.value, heal_days.value, fat_days.value, fat_pct.value)">Start Simulation</button></td> 
       </tr>
     </table>
     
     <script>
-      document.getElementById("numberP").value = localStorage.getItem("nPart") || 20;
-      document.getElementById("radiusP").value = localStorage.getItem("rPart") || 30;
-      document.getElementById("velocityP").value = localStorage.getItem("vPart") || 5;
+      document.getElementById("numberP").value = localStorage.getItem("nPart") || 300;
+      document.getElementById("radiusP").value = localStorage.getItem("rPart") || 8;
+      document.getElementById("velocityP").value = localStorage.getItem("vPart") || 3;
       document.getElementById("iter_day").value = localStorage.getItem("iter_day") || 25;
-      document.getElementById("heal_days").value = localStorage.getItem("heal_days") || 20;
+      document.getElementById("heal_days").value = localStorage.getItem("heal_days") || 15;
+      document.getElementById("fat_days").value = localStorage.getItem("fat_days") || 15;
+      document.getElementById("fat_pct").value = localStorage.getItem("pct_fat") || 10;
+
     </script>
 
     <canvas id="canvas"></canvas>
     
     <script>
-      function start(n, r, v, i, h) {
+      function start(number, radius, vel, iter_day, heal_days, fat_days, fat_pct) {
         var elem = document.getElementById('inputTable');
         elem.parentNode.removeChild(elem);
         var elem2 = document.getElementById('title');
         elem2.parentNode.removeChild(elem2);
         
-        startCanvas(n, r, v, i, h);
+        startCanvas(number, radius, vel, iter_day, heal_days, fat_days, fat_pct);
       }
     </script>
 
